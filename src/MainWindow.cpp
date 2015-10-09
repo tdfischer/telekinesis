@@ -18,16 +18,11 @@
 */
 
 #include "MainWindow.h"
+#include "ui_MainWindow.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QLabel>
-
-int main(int argc, char** argv)
+MainWindow::MainWindow()
+  : QMainWindow()
 {
-  QApplication app(argc, argv);
-  MainWindow mw;
-  mw.show();
-
-  return app.exec();
+  Ui::MainWindow ui;
+  ui.setupUi(this);
 }

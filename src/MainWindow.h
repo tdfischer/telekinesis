@@ -17,17 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "MainWindow.h"
+#pragma once
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QLabel>
+#include <QtWidgets/QMainWindow>
 
-int main(int argc, char** argv)
-{
-  QApplication app(argc, argv);
-  MainWindow mw;
-  mw.show();
-
-  return app.exec();
-}
+class MainWindow: public QMainWindow {
+    Q_OBJECT
+public:
+    MainWindow();
+};
