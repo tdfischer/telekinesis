@@ -20,8 +20,6 @@
 #include "MainWindow.h"
 
 #include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QLabel>
 
 int main(int argc, char** argv)
 {

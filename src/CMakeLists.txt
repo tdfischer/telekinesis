@@ -4,6 +4,9 @@ target_link_libraries(
   telekinesis
     Qt5::Core
     Qt5::Widgets
+    ${GUPNP_LIBRARIES}
+    ${GOBJECT_LIBRARIES}
+    ${GSSDP_LIBRARIES}
 )
 
 set_target_properties(
@@ -11,4 +14,11 @@ set_target_properties(
     PROPERTIES 
       AUTOUIC ON
       AUTOMOC ON
+      CXX_STANDARD 11
+)
+
+include_directories(
+  ${GUPNP_INCLUDE_DIRS}
+  ${GOBJECT_INCLUDE_DIRS}
+  ${GSSDB_INCLUDE_DIRS}
 )

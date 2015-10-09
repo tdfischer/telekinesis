@@ -20,9 +20,150 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <QtCore/QDebug>
+
+struct BrowseData {
+  BrowseData(MainWindow *const _self, GObjPtr<GUPnPServiceProxy> _dir, QStandardItem *const _item)
+    : self(_self),
+      dir(_dir),
+      item(_item) {}
+  MainWindow *const self;
+  GObjPtr<GUPnPServiceProxy> dir;
+  QStandardItem *const item;
+};
+
 MainWindow::MainWindow()
-  : QMainWindow()
+  : QMainWindow(),
+    m_libraryModel(new QStandardItemModel()),
+    m_rendererModel(new QStandardItemModel())
 {
-  Ui::MainWindow ui;
   ui.setupUi(this);
+
+  ui.libraryView->setModel(m_libraryModel.get());
+  ui.rendererView->setModel(m_rendererModel.get());
+
+  m_contextManager.reset(gupnp_context_manager_new (NULL, 0));
+  g_signal_connect(m_contextManager.get(),
+                   "context-available",
+                   G_CALLBACK(cb_context_available),
+                   this);
+}
+
+void
+MainWindow::cb_context_available(GUPnPContextManager* context_manager,
+                                 GUPnPContext* _context,
+                                 gpointer user_data)
+{
+  MainWindow* self(static_cast<MainWindow*>(user_data));
+  GObjPtr<GUPnPContext> context(_context);
+  GObjPtr<GUPnPControlPoint> rendererCP(gupnp_control_point_new(context.get(), "urn:schemas-upnp-org:device:MediaRenderer:1"));
+  GObjPtr<GUPnPControlPoint> libraryCP(gupnp_control_point_new(context.get(), "urn:schemas-upnp-org:device:MediaServer:1"));
+
+  g_signal_connect(rendererCP.get(),
+                   "device-proxy-available",
+                   G_CALLBACK(MainWindow::cb_new_renderer),
+                   self);
+
+  g_signal_connect(libraryCP.get(),
+                   "device-proxy-available",
+                   G_CALLBACK(MainWindow::cb_new_library),
+                   self);
+
+  gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (rendererCP.get()), TRUE);
+  gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (libraryCP.get()), TRUE);
+
+  self->m_rendererCPs.push_back(std::move(rendererCP));
+  self->m_libraryCPs.push_back(std::move(libraryCP));
+  self->m_contexts.push_back(std::move(context));
+}
+
+void
+MainWindow::cb_new_renderer(GUPnPControlPoint *cp,
+                            GUPnPDeviceProxy *proxy,
+                            void* user_data)
+{
+  MainWindow* self = static_cast<MainWindow*>(user_data);
+  const char* name = gupnp_device_info_get_friendly_name (GUPNP_DEVICE_INFO (proxy));
+  std::unique_ptr<QStandardItem> item(new QStandardItem(name));
+
+  self->m_rendererModel->insertRow(0, item.release());
+}
+
+void
+MainWindow::cb_new_library(GUPnPControlPoint *cp,
+                            GUPnPDeviceProxy *proxy,
+                            void* user_data)
+{
+  MainWindow* self = static_cast<MainWindow*>(user_data);
+  const char* name = gupnp_device_info_get_friendly_name (GUPNP_DEVICE_INFO (proxy));
+  std::unique_ptr<QStandardItem> item(new QStandardItem(name));
+
+
+  GObjPtr<GUPnPServiceProxy> content_dir(GUPNP_SERVICE_PROXY (gupnp_device_info_get_service(GUPNP_DEVICE_INFO(proxy), "urn:schemas-upnp-org:service:ContentDirectory:1")));
+
+  BrowseData* data = new BrowseData(self, content_dir, item.get());
+  self->browse("0", 0, 256, data);
+
+  self->m_libraryModel->insertRow(0, item.release());
+}
+
+void
+MainWindow::browse(const char* container_id, guint32 start, guint32 count, BrowseData* browseData)
+{
+  gupnp_service_proxy_begin_action(
+      browseData->dir.get(),
+      "Browse",
+      cb_browse,
+      browseData,
+      "ObjectID",
+      G_TYPE_STRING,
+      container_id,
+      "BrowseFlag",
+      G_TYPE_STRING,
+      "BrowseDirectChildren",
+      "Filter",
+      G_TYPE_STRING,
+      "@childCount",
+      "StartingIndex",
+      G_TYPE_UINT,
+      start,
+      "RequestedCount",
+      G_TYPE_UINT,
+      count,
+      "SortCriteria",
+      G_TYPE_STRING,
+      "",
+      NULL);
+}
+
+void
+MainWindow::cb_browse(GUPnPServiceProxy *content_dir,
+            GUPnPServiceProxyAction *action,
+            gpointer user_data)
+{
+  char *didl_xml;
+  guint32 number_returned;
+  guint32 total_matches;
+  GError *error;
+  BrowseData* browseData = static_cast<BrowseData*>(user_data);
+
+  gupnp_service_proxy_end_action (content_dir,
+                                  action,
+                                  &error,
+                                  "Result",
+                                  G_TYPE_STRING,
+                                  &didl_xml,
+                                  "NumberReturned",
+                                  G_TYPE_UINT,
+                                  &number_returned,
+                                  "TotalMatches",
+                                  G_TYPE_UINT,
+                                  &total_matches,
+                                  NULL);
+  for(int i = 0; i < total_matches; i++) {
+    std::unique_ptr<QStandardItem> item(new QStandardItem("Media"));
+    browseData->item->insertRow(0, item.release());
+  }
+
+  delete browseData;
 }

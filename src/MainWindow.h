@@ -19,10 +19,49 @@
 
 #pragma once
 
+#include <libgupnp/gupnp-control-point.h>
+#include <libgupnp/gupnp-context-manager.h>
+#include <libgupnp/gupnp-context.h>
+
 #include <QtWidgets/QMainWindow>
+
+#include "ui_MainWindow.h"
+#include "util.h"
+
+#include <memory>
+#include <QtGui/QStandardItemModel>
+
+class BrowseData;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
 public:
     MainWindow();
+private:
+    void initUPNP();
+
+    static void cb_new_renderer(GUPnPControlPoint *cp,
+                                GUPnPDeviceProxy *proxy,
+                                gpointer user_data);
+    static void cb_new_library(GUPnPControlPoint *cp,
+                                GUPnPDeviceProxy *proxy,
+                                gpointer user_data);
+    static void cb_context_available (GUPnPContextManager* context_manager,
+                                      GUPnPContext* context,
+                                      gpointer user_data);
+    static void cb_browse(GUPnPServiceProxy *content_dir,
+                          GUPnPServiceProxyAction *action,
+                          gpointer user_data);
+    void browse(const char* container_id,
+                guint32 start,
+                guint32 count,
+                BrowseData* browseData);
+
+    Ui::MainWindow ui;
+    std::unique_ptr<QStandardItemModel> m_libraryModel;
+    std::unique_ptr<QStandardItemModel> m_rendererModel;
+    GObjPtr<GUPnPContextManager> m_contextManager;
+    std::vector<GObjPtr<GUPnPContext>> m_contexts;
+    std::vector<GObjPtr<GUPnPControlPoint>> m_rendererCPs;
+    std::vector<GObjPtr<GUPnPControlPoint>> m_libraryCPs;
 };
