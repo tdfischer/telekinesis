@@ -4,6 +4,7 @@ target_link_libraries(
   telekinesis
     Qt5::Core
     Qt5::Widgets
+    ${GUPNP_AV_LIBRARIES}
     ${GUPNP_LIBRARIES}
     ${GOBJECT_LIBRARIES}
     ${GSSDP_LIBRARIES}
@@ -18,6 +19,7 @@ set_target_properties(
 )
 
 include_directories(
+  ${GUPNP_AV_INCLUDE_DIRS}
   ${GUPNP_INCLUDE_DIRS}
   ${GOBJECT_INCLUDE_DIRS}
   ${GSSDB_INCLUDE_DIRS}

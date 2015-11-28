@@ -137,6 +137,30 @@ MainWindow::browse(const char* container_id, guint32 start, guint32 count, Brows
 }
 
 void
+cb_item_available(GUPnPDIDLLiteParser *parser,
+                  GUPnPDIDLLiteItem *item,
+                  gpointer user_data)
+{
+  BrowseData* browseData = static_cast<BrowseData*>(user_data);
+  std::unique_ptr<QStandardItem> listItem(new QStandardItem(gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item))));
+  browseData->item->insertRow(0, listItem.release());
+}
+
+void
+MainWindow::cb_container_available(GUPnPDIDLLiteParser *parser,
+                       GUPnPDIDLLiteContainer *item,
+                       gpointer user_data)
+{
+  BrowseData* browseData = static_cast<BrowseData*>(user_data);
+  std::unique_ptr<QStandardItem> listItem(new QStandardItem(gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item))));
+
+  BrowseData* childData = new BrowseData(browseData->self, browseData->dir, listItem.get());
+  browseData->self->browse(gupnp_didl_lite_object_get_id(GUPNP_DIDL_LITE_OBJECT(item)), 0, 256, childData);
+
+  browseData->item->insertRow(0, listItem.release());
+}
+
+void
 MainWindow::cb_browse(GUPnPServiceProxy *content_dir,
             GUPnPServiceProxyAction *action,
             gpointer user_data)
@@ -160,10 +184,17 @@ MainWindow::cb_browse(GUPnPServiceProxy *content_dir,
                                   G_TYPE_UINT,
                                   &total_matches,
                                   NULL);
-  for(int i = 0; i < total_matches; i++) {
-    std::unique_ptr<QStandardItem> item(new QStandardItem("Media"));
-    browseData->item->insertRow(0, item.release());
-  }
+
+  GObjPtr<GUPnPDIDLLiteParser> parser(gupnp_didl_lite_parser_new ());
+  g_signal_connect(parser.get(),
+                   "container-available", 
+                   G_CALLBACK(cb_container_available),
+                   browseData);
+  g_signal_connect(parser.get(),
+                   "item-available", 
+                   G_CALLBACK(cb_item_available),
+                   browseData);
+  gupnp_didl_lite_parser_parse_didl (parser.get(), didl_xml, &error);
 
   delete browseData;
 }

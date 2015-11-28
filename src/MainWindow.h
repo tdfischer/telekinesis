@@ -23,6 +23,8 @@
 #include <libgupnp/gupnp-context-manager.h>
 #include <libgupnp/gupnp-context.h>
 
+#include <libgupnp-av/gupnp-av.h>
+
 #include <QtWidgets/QMainWindow>
 
 #include "ui_MainWindow.h"
@@ -52,6 +54,10 @@ private:
     static void cb_browse(GUPnPServiceProxy *content_dir,
                           GUPnPServiceProxyAction *action,
                           gpointer user_data);
+    static void cb_container_available(GUPnPDIDLLiteParser *parser,
+                                       GUPnPDIDLLiteContainer *item,
+                                       gpointer user_data);
+
     void browse(const char* container_id,
                 guint32 start,
                 guint32 count,
