@@ -39,6 +39,10 @@ class MainWindow: public QMainWindow {
     Q_OBJECT
 public:
     MainWindow();
+
+private slots:
+    void playCurrent();
+
 private:
     void initUPNP();
 
@@ -67,6 +71,7 @@ private:
     std::unique_ptr<QStandardItemModel> m_libraryModel;
     std::unique_ptr<QStandardItemModel> m_rendererModel;
     GObjPtr<GUPnPContextManager> m_contextManager;
+    GObjPtr<GUPnPServiceProxy> m_lastProxy;
     std::vector<GObjPtr<GUPnPContext>> m_contexts;
     std::vector<GObjPtr<GUPnPControlPoint>> m_rendererCPs;
     std::vector<GObjPtr<GUPnPControlPoint>> m_libraryCPs;

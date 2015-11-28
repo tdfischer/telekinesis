@@ -42,6 +42,8 @@ MainWindow::MainWindow()
   ui.libraryView->setModel(m_libraryModel.get());
   ui.rendererView->setModel(m_rendererModel.get());
 
+  connect(ui.playButton, &QAbstractButton::clicked, this, &MainWindow::playCurrent);
+
   m_contextManager.reset(gupnp_context_manager_new (NULL, 0));
   g_signal_connect(m_contextManager.get(),
                    "context-available",
@@ -87,6 +89,7 @@ MainWindow::cb_new_renderer(GUPnPControlPoint *cp,
   std::unique_ptr<QStandardItem> item(new QStandardItem(name));
 
   self->m_rendererModel->insertRow(0, item.release());
+  self->m_lastProxy.reset(GUPNP_SERVICE_PROXY(gupnp_device_info_get_service(GUPNP_DEVICE_INFO(proxy), "urn:schemas-upnp-org:service:AVTransport:1")));
 }
 
 void
@@ -142,7 +145,12 @@ cb_item_available(GUPnPDIDLLiteParser *parser,
                   gpointer user_data)
 {
   BrowseData* browseData = static_cast<BrowseData*>(user_data);
-  std::unique_ptr<QStandardItem> listItem(new QStandardItem(gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item))));
+  GList* resources = gupnp_didl_lite_object_get_resources (GUPNP_DIDL_LITE_OBJECT(item));
+  const QString uri(gupnp_didl_lite_resource_get_uri (GUPNP_DIDL_LITE_RESOURCE(resources->data)));
+  g_list_free (resources);
+  const gchar* name = gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item));
+  std::unique_ptr<QStandardItem> listItem(new QStandardItem(name));
+  listItem->setData(uri);
   browseData->item->insertRow(0, listItem.release());
 }
 
@@ -155,9 +163,8 @@ MainWindow::cb_container_available(GUPnPDIDLLiteParser *parser,
   std::unique_ptr<QStandardItem> listItem(new QStandardItem(gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item))));
 
   BrowseData* childData = new BrowseData(browseData->self, browseData->dir, listItem.get());
-  browseData->self->browse(gupnp_didl_lite_object_get_id(GUPNP_DIDL_LITE_OBJECT(item)), 0, 256, childData);
-
   browseData->item->insertRow(0, listItem.release());
+  browseData->self->browse(gupnp_didl_lite_object_get_id(GUPNP_DIDL_LITE_OBJECT(item)), 0, 256, childData);
 }
 
 void
@@ -168,7 +175,7 @@ MainWindow::cb_browse(GUPnPServiceProxy *content_dir,
   char *didl_xml;
   guint32 number_returned;
   guint32 total_matches;
-  GError *error;
+  GError *error = nullptr;
   BrowseData* browseData = static_cast<BrowseData*>(user_data);
 
   gupnp_service_proxy_end_action (content_dir,
@@ -197,4 +204,36 @@ MainWindow::cb_browse(GUPnPServiceProxy *content_dir,
   gupnp_didl_lite_parser_parse_didl (parser.get(), didl_xml, &error);
 
   delete browseData;
+}
+
+void
+cb_transport_set(GUPnPServiceProxy *transport,
+    GUPnPServiceProxyAction *action,
+    gpointer user_data)
+{
+}
+
+void
+MainWindow::playCurrent()
+{
+  QModelIndex idx = ui.libraryView->selectionModel()->selectedIndexes()[0];
+  QStandardItem* item = m_rendererModel->itemFromIndex(idx);
+  const QString current_uri = item->data().toString();
+  qDebug() << "Playing" << item;
+
+  gupnp_service_proxy_begin_action(
+      m_lastProxy.get(),
+      "SetAVTransportURI",
+      cb_transport_set,
+      nullptr,
+      "InstanceID",
+      G_TYPE_UINT,
+      0,
+      "CurrentURI",
+      G_TYPE_STRING,
+      current_uri,
+      "CurrentURIMetaData",
+      G_TYPE_STRING,
+      "",
+      NULL);
 }
