@@ -18,18 +18,26 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Media Library</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTreeView" name="libraryView"/>
-        </item>
-       </layout>
+       <widget class="QSplitter" name="splitter">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="QWidget" name="layoutWidget">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Media Library</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeView" name="libraryView"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QTableView" name="metadataView"/>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -49,6 +57,9 @@
     </item>
     <item>
      <widget class="QPushButton" name="playButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>Play!</string>
       </property>

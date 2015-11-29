@@ -32,6 +32,9 @@ MainWindow::MainWindow()
   ui.libraryView->setModel(m_libraryModel.get());
   ui.rendererView->setModel(m_rendererModel.get());
 
+  connect(ui.libraryView->selectionModel(), &QItemSelectionModel::currentChanged,
+          this, &MainWindow::onCurrentChanged);
+
   connect(ui.playButton, &QAbstractButton::clicked, this, &MainWindow::playCurrent);
 
   m_contextManager.reset(gupnp_context_manager_new (NULL, 0));
@@ -105,4 +108,17 @@ MainWindow::playCurrent()
       G_TYPE_STRING,
       "",
       NULL);
+}
+
+void
+MainWindow::onCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+    LibraryItem *item = m_libraryModel->itemForIndex(current);
+    if (item) {
+        ui.playButton->setEnabled(true);
+        ui.metadataView->setModel(item->metadataModel());
+    } else {
+        ui.playButton->setEnabled(false);
+        ui.metadataView->setModel(nullptr);
+    }
 }

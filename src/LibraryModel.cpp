@@ -148,3 +148,8 @@ LibraryModel::cb_browse(GUPnPServiceProxy *content_dir,
 
   delete browseData;
 }
+LibraryItem*
+LibraryModel::itemForIndex(const QModelIndex& index) const
+{
+    return static_cast<LibraryItem*>(data(index, LibraryModel::ItemRole).value<void*>());
+}

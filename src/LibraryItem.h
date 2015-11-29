@@ -32,9 +32,14 @@
 class LibraryItem: public QStandardItem {
 public:
     LibraryItem(GObjPtr<GUPnPDIDLLiteItem>& item);
+    QAbstractItemModel* metadataModel() const;
 private:
     std::unique_ptr<QNetworkAccessManager> m_network;
     DeleteLaterPtr<QNetworkReply> m_reply;
+    std::unique_ptr<QStandardItemModel> m_metadataModel;
 
     void downloadAlbumArt(const QUrl& url);
+    void setMetadata(const QVariant& value,
+                     const QString& label,
+                     int role);
 };

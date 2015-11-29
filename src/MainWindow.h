@@ -39,6 +39,7 @@ public:
 
 private slots:
     void playCurrent();
+    void onCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
 
 private:
     void initUPNP();

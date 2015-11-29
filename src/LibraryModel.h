@@ -20,15 +20,16 @@
 #pragma once
 
 #include <QtGui/QStandardItemModel>
-#undef signals
 
+#include "LibraryItem.h"
+#include "util.h"
+
+#undef signals
 #include <libgupnp/gupnp-control-point.h>
 #include <libgupnp/gupnp-context-manager.h>
 #include <libgupnp/gupnp-context.h>
 
 #include <libgupnp-av/gupnp-av.h>
-
-#include "util.h"
 
 struct BrowseData;
 
@@ -36,12 +37,17 @@ class LibraryModel: public QStandardItemModel {
     Q_OBJECT
 public:
     enum Role {
-      UriRole = Qt::UserRole,
-      DidlItemRole
+      ItemRole = Qt::UserRole,
+      UriRole,
+      DescriptionRole,
+      ArtistRole,
+      AlbumRole,
+      TrackNumberRole,
+      ClassRole
     };
     LibraryModel();
     void addContext(GObjPtr<GUPnPContext>& cxt);
-    GObjPtr<GUPnPDIDLLiteItem> itemForIndex(const QModelIndex& idx) const;
+    LibraryItem* itemForIndex(const QModelIndex& idx) const;
 private:
     std::vector<GObjPtr<GUPnPControlPoint>> m_controlPoints;
 
