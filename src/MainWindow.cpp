@@ -87,9 +87,8 @@ void
 MainWindow::playCurrent()
 {
   QModelIndex idx = ui.libraryView->selectionModel()->selectedIndexes()[0];
-  QStandardItem* item = m_rendererModel->itemFromIndex(idx);
-  const QString current_uri = item->data().toString();
-  qDebug() << "Playing" << item;
+  const QString current_uri = idx.data(LibraryModel::UriRole).toString();
+  qDebug() << "Playing" << current_uri;
 
   gupnp_service_proxy_begin_action(
       m_lastProxy.get(),

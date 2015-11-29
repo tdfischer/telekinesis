@@ -35,6 +35,9 @@ struct BrowseData;
 class LibraryModel: public QStandardItemModel {
     Q_OBJECT
 public:
+    enum Role {
+      UriRole = Qt::UserRole,
+    };
     LibraryModel();
     void addContext(GObjPtr<GUPnPContext>& cxt);
 private:

@@ -95,7 +95,7 @@ cb_item_available(GUPnPDIDLLiteParser *parser,
   g_list_free (resources);
   const gchar* name = gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item));
   std::unique_ptr<QStandardItem> listItem(new QStandardItem(name));
-  listItem->setData(uri);
+  listItem->setData(uri, LibraryModel::UriRole);
   browseData->item->insertRow(0, listItem.release());
 }
 
