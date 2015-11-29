@@ -20,9 +20,38 @@
 #pragma once
 
 #include <QtGui/QStandardItemModel>
+#undef signals
+
+#include <libgupnp/gupnp-control-point.h>
+#include <libgupnp/gupnp-context-manager.h>
+#include <libgupnp/gupnp-context.h>
+
+#include <libgupnp-av/gupnp-av.h>
+
+#include "util.h"
+
+struct BrowseData;
 
 class LibraryModel: public QStandardItemModel {
     Q_OBJECT
 public:
     LibraryModel();
+    void addContext(GObjPtr<GUPnPContext>& cxt);
+private:
+    std::vector<GObjPtr<GUPnPControlPoint>> m_controlPoints;
+
+    void browse(const char* container_id,
+                guint32 start,
+                guint32 count,
+                BrowseData* browseData);
+
+    static void cb_new_library(GUPnPControlPoint *cp, 
+                        GUPnPDeviceProxy *proxy,
+                        void* user_data);
+    static void cb_browse(GUPnPServiceProxy *content_dir,
+                   GUPnPServiceProxyAction *action,
+                   gpointer user_data);
+    static void cb_container_available(GUPnPDIDLLiteParser *parser,
+                                GUPnPDIDLLiteContainer *item,
+                                gpointer user_data);
 };

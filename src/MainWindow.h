@@ -26,15 +26,11 @@
 #include <libgupnp/gupnp-context-manager.h>
 #include <libgupnp/gupnp-context.h>
 
-#include <libgupnp-av/gupnp-av.h>
-
 #include "ui_MainWindow.h"
 #include "util.h"
 #include "LibraryModel.h"
 
 #include <memory>
-
-class BrowseData;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -50,23 +46,9 @@ private:
     static void cb_new_renderer(GUPnPControlPoint *cp,
                                 GUPnPDeviceProxy *proxy,
                                 gpointer user_data);
-    static void cb_new_library(GUPnPControlPoint *cp,
-                                GUPnPDeviceProxy *proxy,
-                                gpointer user_data);
     static void cb_context_available (GUPnPContextManager* context_manager,
                                       GUPnPContext* context,
                                       gpointer user_data);
-    static void cb_browse(GUPnPServiceProxy *content_dir,
-                          GUPnPServiceProxyAction *action,
-                          gpointer user_data);
-    static void cb_container_available(GUPnPDIDLLiteParser *parser,
-                                       GUPnPDIDLLiteContainer *item,
-                                       gpointer user_data);
-
-    void browse(const char* container_id,
-                guint32 start,
-                guint32 count,
-                BrowseData* browseData);
 
     Ui::MainWindow ui;
     std::unique_ptr<LibraryModel> m_libraryModel;
@@ -75,5 +57,4 @@ private:
     GObjPtr<GUPnPServiceProxy> m_lastProxy;
     std::vector<GObjPtr<GUPnPContext>> m_contexts;
     std::vector<GObjPtr<GUPnPControlPoint>> m_rendererCPs;
-    std::vector<GObjPtr<GUPnPControlPoint>> m_libraryCPs;
 };
