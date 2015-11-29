@@ -11,6 +11,7 @@ target_link_libraries(
   telekinesis
     Qt5::Core
     Qt5::Widgets
+    Qt5::Network
     ${GUPNP_AV_LIBRARIES}
     ${GUPNP_LIBRARIES}
     ${GOBJECT_LIBRARIES}

@@ -20,6 +20,9 @@
 #pragma once
 
 #include <QtGui/QStandardItem>
+#include <QtCore/QUrl>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
 #undef signals
 
 #include <libgupnp-av/gupnp-av.h>
@@ -29,4 +32,9 @@
 class LibraryItem: public QStandardItem {
 public:
     LibraryItem(GObjPtr<GUPnPDIDLLiteItem>& item);
+private:
+    std::unique_ptr<QNetworkAccessManager> m_network;
+    DeleteLaterPtr<QNetworkReply> m_reply;
+
+    void downloadAlbumArt(const QUrl& url);
 };

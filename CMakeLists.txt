@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(telekinesis)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Network)
 find_package(PkgConfig REQUIRED)
 
 pkg_search_module(GUPNP REQUIRED gupnp-1.0)
