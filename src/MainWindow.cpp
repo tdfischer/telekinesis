@@ -34,7 +34,7 @@ struct BrowseData {
 
 MainWindow::MainWindow()
   : QMainWindow(),
-    m_libraryModel(new QStandardItemModel()),
+    m_libraryModel(new LibraryModel()),
     m_rendererModel(new QStandardItemModel())
 {
   ui.setupUi(this);

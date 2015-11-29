@@ -19,19 +19,20 @@
 
 #pragma once
 
+#include <QtWidgets/QMainWindow>
+#undef signals
+
 #include <libgupnp/gupnp-control-point.h>
 #include <libgupnp/gupnp-context-manager.h>
 #include <libgupnp/gupnp-context.h>
 
 #include <libgupnp-av/gupnp-av.h>
 
-#include <QtWidgets/QMainWindow>
-
 #include "ui_MainWindow.h"
 #include "util.h"
+#include "LibraryModel.h"
 
 #include <memory>
-#include <QtGui/QStandardItemModel>
 
 class BrowseData;
 
@@ -68,7 +69,7 @@ private:
                 BrowseData* browseData);
 
     Ui::MainWindow ui;
-    std::unique_ptr<QStandardItemModel> m_libraryModel;
+    std::unique_ptr<LibraryModel> m_libraryModel;
     std::unique_ptr<QStandardItemModel> m_rendererModel;
     GObjPtr<GUPnPContextManager> m_contextManager;
     GObjPtr<GUPnPServiceProxy> m_lastProxy;

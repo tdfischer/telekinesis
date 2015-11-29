@@ -1,4 +1,10 @@
-add_executable(telekinesis main.cpp MainWindow.cpp)
+set(telekinesis_SRCS
+  main.cpp
+  LibraryModel.cpp
+  MainWindow.cpp
+)
+
+add_executable(telekinesis ${telekinesis_SRCS})
 
 target_link_libraries(
   telekinesis
