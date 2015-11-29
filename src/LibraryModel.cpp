@@ -1,4 +1,5 @@
 #include "LibraryModel.h"
+#include "LibraryItem.h"
 
 struct BrowseData {
   BrowseData(LibraryModel *const _self,
@@ -86,16 +87,13 @@ LibraryModel::browse(const char* container_id,
 
 void
 cb_item_available(GUPnPDIDLLiteParser *parser,
-                  GUPnPDIDLLiteItem *item,
+                  GUPnPDIDLLiteItem *_item,
                   gpointer user_data)
 {
+  GObjPtr<GUPnPDIDLLiteItem> item(_item);
   BrowseData* browseData = static_cast<BrowseData*>(user_data);
-  GList* resources = gupnp_didl_lite_object_get_resources (GUPNP_DIDL_LITE_OBJECT(item));
-  const QString uri(gupnp_didl_lite_resource_get_uri (GUPNP_DIDL_LITE_RESOURCE(resources->data)));
-  g_list_free (resources);
-  const gchar* name = gupnp_didl_lite_object_get_title(GUPNP_DIDL_LITE_OBJECT(item));
-  std::unique_ptr<QStandardItem> listItem(new QStandardItem(name));
-  listItem->setData(uri, LibraryModel::UriRole);
+
+  std::unique_ptr<LibraryItem> listItem(new LibraryItem(item));
   browseData->item->insertRow(0, listItem.release());
 }
 

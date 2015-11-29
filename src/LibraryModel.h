@@ -37,9 +37,11 @@ class LibraryModel: public QStandardItemModel {
 public:
     enum Role {
       UriRole = Qt::UserRole,
+      DidlItemRole
     };
     LibraryModel();
     void addContext(GObjPtr<GUPnPContext>& cxt);
+    GObjPtr<GUPnPDIDLLiteItem> itemForIndex(const QModelIndex& idx) const;
 private:
     std::vector<GObjPtr<GUPnPControlPoint>> m_controlPoints;
 

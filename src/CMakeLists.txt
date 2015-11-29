@@ -1,5 +1,6 @@
 set(telekinesis_SRCS
   main.cpp
+  LibraryItem.cpp
   LibraryModel.cpp
   MainWindow.cpp
 )
