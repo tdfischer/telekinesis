@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>images/no-renderers.svg</file>
+  <file>images/no-servers.svg</file>
+</qresource>
+</RCC>

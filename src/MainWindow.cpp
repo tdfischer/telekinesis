@@ -19,6 +19,7 @@
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "EmptyViewOverlay.h"
 
 #include <QtCore/QDebug>
 
@@ -31,6 +32,14 @@ MainWindow::MainWindow()
 
   ui.libraryView->setModel(m_libraryModel.get());
   ui.rendererView->setModel(m_rendererModel.get());
+
+  new EmptyViewOverlay(ui.rendererView,
+      "There are no UPnP renderers visible on the network",
+      QPixmap(":/images/no-renderers.svg"));
+
+  new EmptyViewOverlay(ui.libraryView,
+      "There are no UPnP media servers visible on the network",
+      QPixmap(":/images/no-servers.svg"));
 
   connect(ui.libraryView->selectionModel(), &QItemSelectionModel::currentChanged,
           this, &MainWindow::onCurrentChanged);

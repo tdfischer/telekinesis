@@ -1,8 +1,11 @@
 set(telekinesis_SRCS
   main.cpp
+  EmptyViewOverlay.cpp
   LibraryItem.cpp
   LibraryModel.cpp
   MainWindow.cpp
+
+  images.qrc
 )
 
 add_executable(telekinesis ${telekinesis_SRCS})
@@ -23,6 +26,7 @@ set_target_properties(
     PROPERTIES 
       AUTOUIC ON
       AUTOMOC ON
+      AUTORCC ON
       CXX_STANDARD 11
 )
 
